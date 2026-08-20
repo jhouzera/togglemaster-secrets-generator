@@ -13,9 +13,9 @@ Vá em `Issues` > `New issue` > escolha o template `🔑 Secrets Generator` e pr
 
 `Secret Value` - O valor do secret, ou seja, a senha, API key, etc.
 
-Clique em `Submit new issue`. A label `secrets-generator` é adicionada automaticamente pelo template e
-dispara o workflow, que valida os campos, cria/atualiza o secret, ofusca o valor no corpo da issue e a
-encerra com um comentário de confirmação.
+Clique em `Submit new issue`. O workflow é disparado pelo prefixo `[secrets-generator]` no título
+(preenchido automaticamente pelo template) e sempre encerra a issue ao final, com um comentário de
+sucesso ou de falha, e ofusca o valor do secret no corpo da issue.
 
 ### Segurança
 
@@ -33,3 +33,20 @@ Cada environment (`dev`, `qa`, `prod`) do repositório precisa ter configurado:
 - `vars.AWS_REGION` - região da conta AWS do environment.
 
 A role precisa confiar no provider OIDC do GitHub Actions (`token.actions.githubusercontent.com`) para o repositório `togglemaster-secrets-generator`.
+
+### Troubleshooting: jobs aparecem como `Skipped`
+
+O gatilho do workflow depende do prefixo `[secrets-generator]` no título da issue (`if: startsWith(...)`),
+não da label. Isso porque o campo `labels` do issue form só é aplicado se a label `secrets-generator`
+**já existir** no repositório; caso contrário, o GitHub cria a issue sem a label e qualquer `if` baseado
+nela nunca é satisfeito, fazendo todos os jobs aparecerem como `Skipped`.
+
+Se os jobs continuarem pulados, confirme:
+
+- O título da issue começa com `[secrets-generator]` (valor padrão do template, não deve ser removido).
+- O workflow está na branch padrão do repositório (`main`) — GitHub só considera o `secrets-generator.yml`
+  da branch default para eventos `issues`.
+- Em `Settings > Actions > General`, a opção `Allow all actions and reusable workflows` (ou equivalente)
+  está habilitada, permitindo o uso de actions de terceiros como `stefanbuck/github-issue-parser`.
+- Opcionalmente, crie a label `secrets-generator` em `Issues > Labels` para fins de organização/filtro
+  (não é mais exigida para o disparo do workflow).
