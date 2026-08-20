@@ -34,6 +34,14 @@ Cada environment (`dev`, `qa`, `prod`) do repositório precisa ter configurado:
 
 A role precisa confiar no provider OIDC do GitHub Actions (`token.actions.githubusercontent.com`) para o repositório `togglemaster-secrets-generator`.
 
+A trust policy da role em `togglemaster-bootstrap-ci-iam` usa a condição
+`token.actions.githubusercontent.com:sub = repo:<owner>/<repo>:environment:<env>`. Por isso o workflow
+tem um job dedicado por ambiente (`create_secret_dev`, `create_secret_qa`, `create_secret_prod`), cada um
+com `environment:` literal (`dev`/`qa`/`prod`) — o claim `:environment:<nome>` do token OIDC só é incluído
+quando o nome do environment é estático no job, não quando calculado a partir de `needs.*.outputs`. Hoje
+apenas o environment/role de `dev` está provisionado; para `qa`/`prod` é necessário criar o environment no
+GitHub e a role/trust policy correspondente antes de usá-los.
+
 ### Troubleshooting: jobs aparecem como `Skipped`
 
 O gatilho do workflow depende do prefixo `[secrets-generator]` no título da issue (`if: startsWith(...)`),
