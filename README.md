@@ -7,15 +7,34 @@ disparado através da abertura de uma issue.
 
 Vá em `Issues` > `New issue` > escolha o template `🔑 Secrets Generator` e preencha os 3 campos:
 
-`Environment` - O environment onde o secret será criado: `dev`, `qa` ou `prod`
+`Environment` - O environment onde o secret será criado: `dev`
 
-`Secret Name` - Deve seguir o padrão `<prefixo>/<componente>/<secret-name>`, por exemplo: `togglemaster-dev/app/service-api-key`
+`Secret Name` - Deve seguir o padrão `<prefixo>/<componente>/<secret-name>`, por exemplo: `togglemaster-dev/evaluation/service-api-key`
 
 `Secret Value` - O valor do secret, ou seja, a senha, API key, etc.
 
 Clique em `Submit new issue`. O workflow é disparado pelo prefixo `[secrets-generator]` no título
 (preenchido automaticamente pelo template) e sempre encerra a issue ao final, com um comentário de
 sucesso ou de falha, e ofusca o valor do secret no corpo da issue.
+
+### Contrato atual do projeto
+
+Os secrets de runtime do ToggleMaster nao sao provisionados diretamente pelo Terraform. O contrato atual e:
+
+- `DB_PASSWORD`: criado/consumido no bootstrap do Terraform como `TF_VAR_db_password`.
+- `togglemaster-dev/auth/db-url`: URL do banco auth.
+- `togglemaster-dev/auth/master-key`: chave mestre do auth-service.
+- `togglemaster-dev/flag/db-url`: URL do banco flag.
+- `togglemaster-dev/targeting/db-url`: URL do banco targeting.
+- `togglemaster-dev/evaluation/redis-url`: URL do Redis.
+- `togglemaster-dev/evaluation/service-api-key`: chave de servico do evaluation-service.
+- `togglemaster-dev/evaluation/sqs-url`: URL da fila SQS, usada por evaluation e analytics.
+- `togglemaster-dev/evaluation/sqs-arn`: ARN da fila SQS, reservado para consumidores que o exigirem.
+- `togglemaster-dev/analytics/dynamodb-table-name`: nome da tabela DynamoDB, usado pelo analytics-service.
+
+Depois do `terraform apply`, obtenha os endpoints e identificadores nos outputs do IaC e crie ou
+atualize cada secret pela issue form. Esse padrao garante que todos os valores de runtime
+permaneçam no Secrets Manager e sejam consumidos pelos workloads sem depender de inputs do IaC.
 
 ### Segurança
 
@@ -27,7 +46,7 @@ sucesso ou de falha, e ofusca o valor do secret no corpo da issue.
 
 ### Pré-requisitos
 
-Cada environment (`dev`, `qa`, `prod`) do repositório precisa ter configurado:
+O environment `dev` do repositório precisa ter configurado:
 
 - `vars.AWS_ROLE_TO_ASSUME` - ARN da role IAM assumida via OIDC (precisa de permissão `secretsmanager:CreateSecret`, `secretsmanager:UpdateSecret`, `secretsmanager:DescribeSecret`).
 - `vars.AWS_REGION` - região da conta AWS do environment.
@@ -36,11 +55,8 @@ A role precisa confiar no provider OIDC do GitHub Actions (`token.actions.github
 
 A trust policy da role em `togglemaster-bootstrap-ci-iam` usa a condição
 `token.actions.githubusercontent.com:sub = repo:<owner>/<repo>:environment:<env>`. Por isso o workflow
-tem um job dedicado por ambiente (`create_secret_dev`, `create_secret_qa`, `create_secret_prod`), cada um
-com `environment:` literal (`dev`/`qa`/`prod`) — o claim `:environment:<nome>` do token OIDC só é incluído
-quando o nome do environment é estático no job, não quando calculado a partir de `needs.*.outputs`. Hoje
-apenas o environment/role de `dev` está provisionado; para `qa`/`prod` é necessário criar o environment no
-GitHub e a role/trust policy correspondente antes de usá-los.
+tem um job `create_secret_dev` com `environment: dev` — o claim `:environment:dev` do token OIDC só é incluído
+quando o nome do environment é estático no job.
 
 ### Troubleshooting: jobs aparecem como `Skipped`
 
