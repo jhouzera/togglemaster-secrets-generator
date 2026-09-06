@@ -29,4 +29,3 @@ Assim que a Issue for aberta, um GitHub Action disparará silenciosamente se aut
 - Permissões estritas vinculadas via GitHub OIDC garantem que a máquina possua somente permissões pontuais de escrita em serviços de cofre (KMS/SecretsManager).
 
 teste
-teste
