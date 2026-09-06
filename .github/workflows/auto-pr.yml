@@ -1,0 +1,13 @@
+name: auto-pr
+
+on:
+  push:
+    branches:
+      - 'feat/**'
+      - 'bug/**'
+
+jobs:
+  auto-pr:
+    uses: jhouzera/togglemaster-cicd-templates/.github/workflows/auto-pr.yml@main
+    with:
+      target-branch: main
