@@ -75,4 +75,3 @@ Se os jobs continuarem pulados, confirme:
 - Opcionalmente, crie a label `secrets-generator` em `Issues > Labels` para fins de organização/filtro
   (não é mais exigida para o disparo do workflow).
 
-TESTE
