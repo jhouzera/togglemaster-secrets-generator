@@ -6,11 +6,11 @@ on:
       - 'feat/**'
       - 'bug/**'
 
+permissions:s
+  contents: read
+  pull-requests: write
 jobs:
   auto-pr:
-    permissions:
-      contents: read
-      pull-requests: write
     uses: jhouzera/togglemaster-cicd-templates/.github/workflows/auto-pr.yml@main
     with:
       target-branch: main
