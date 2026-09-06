@@ -6,6 +6,13 @@ Ferramenta via automação de GitHub Actions para abstrair a criação e atualiz
 Evitar acesso humano ao console produtivo da AWS ou ao CLI.
 Facilitar o gerenciamento de credenciais e API Keys da plataforma utilizando fluxos auditáveis (IssueOps).
 
+## ⚙️ Como Funciona
+O repositório adota o conceito de **IssueOps** (Operações baseadas em Issues do GitHub).
+1. Um usuário preenche um formulário estruturado de Issue (`issue_template`).
+2. O simples ato de criar a Issue dispara o *Trigger* `issues: types: [opened]` do GitHub Actions.
+3. O script lê o payload JSON da Issue, captura as variáveis inseridas e, utilizando OIDC (OpenID Connect), autentica-se de forma invisível na AWS assumindo a *Role* apropriada.
+4. Ele realiza uma chamada à API do *AWS Secrets Manager* gravando o dado, limpa as evidências dos logs por segurança e comenta/fecha a Issue automaticamente sinalizando o sucesso da operação.
+
 ## 🚀 Como Utilizar
 
 Toda a interação é feita pela própria interface do GitHub via **Issues**.
