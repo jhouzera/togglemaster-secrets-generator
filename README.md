@@ -27,3 +27,5 @@ Assim que a Issue for aberta, um GitHub Action disparará silenciosamente se aut
 ## 🔐 Segurança e Boas Práticas
 - **Sem logs:** Os valores (payloads) do *Issue Form* são ocultos no processo de execução e não transbordam para os logs do terminal da pipeline.
 - Permissões estritas vinculadas via GitHub OIDC garantem que a máquina possua somente permissões pontuais de escrita em serviços de cofre (KMS/SecretsManager).
+
+teste
